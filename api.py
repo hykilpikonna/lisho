@@ -70,8 +70,13 @@ def expand(short: str):
 
 
 @app.get('/')
-def get():
+def index():
     return FileResponse('index.html')
+
+
+@app.get('/favicon.ico')
+def favicon():
+    return FileResponse('favicon.ico')
 
 
 @app.put('/')
