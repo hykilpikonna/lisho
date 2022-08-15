@@ -6,4 +6,4 @@ COPY requirements.txt req
 RUN pip3 install -r req
 
 COPY . .
-ENTRYPOINT ['api.py']
+CMD ["python3", "api.py"]
