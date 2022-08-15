@@ -5,7 +5,7 @@ services:
     restart: always
     ports:
       - '14792:8000'
-    image: hykilpikonna/lisho:1.0.1
+    image: hykilpikonna/lisho:1.0.3
     environment:
       - GOOGLE_API_KEY="Your key here"
     build: .
