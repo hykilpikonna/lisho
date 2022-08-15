@@ -119,7 +119,7 @@
                 const resp = await fetch('/', {method: 'PUT', body: url})
                 const txt = await resp.text()
                 this.error = resp.status !== 200
-                this.short = this.error ? txt : window.location.origin.replaceAll(/https?:\/\//, '') + txt
+                this.short = this.error ? txt : window.location.origin.replaceAll(/https?:\/\//g, '') + txt
 
                 // Copy to clipboard
                 if (!this.error)

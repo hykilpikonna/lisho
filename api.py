@@ -6,6 +6,7 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, Body
+from hyfetch.color_util import printc
 from pysafebrowsing import SafeBrowsing
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, HTMLResponse, FileResponse, PlainTextResponse
@@ -84,13 +85,14 @@ def put(request: Request, name: str | None = None, body: str = Body()):
 
         ip = request.headers.get('X-Real-IP') or request.client.host
 
-        print(f'New PUT request from {ip}')
-        print(f'> URL: {body.replace("https://", "").replace("http://", "")}')
+        print()
+        printc(f'&aPUT - New request from {ip}')
+        printc(f'&e> URL: {body.replace("https://", "").replace("http://", "")}')
 
         # Check valid html
         assert re_url.match(body), 'Invalid HTML'
         sb = safe_browsing.lookup_url(body)
-        print(f'> SafeBrowsing Result: {sb}')
+        printc(f'&e> SafeBrowsing Result: {sb}')
         assert not sb['malicious'], f'Link is malicious ({",".join(sb["threats"]).lower()})'
 
         # Generate name
@@ -102,14 +104,15 @@ def put(request: Request, name: str | None = None, body: str = Body()):
 
         # Put name
         links[name] = body
-        print(f'> Added link: {name}')
+        printc(f'&a> Added link: /{name}')
         store()
 
         return PlainTextResponse(f'/{name}')
 
     except AssertionError as e:
-        print(f'> Rejected. {e}')
+        printc(f'&c> Rejected. {e}')
         return PlainTextResponse(f'Error: {e}', status_code=400)
+
 
 if __name__ == '__main__':
     load()
