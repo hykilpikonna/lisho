@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HyDEV Link Shortener</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://www.unpkg.com/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://www.unpkg.com/jquery-ui@1.13.2/dist/jquery-ui.min.js"></script>
+  <style>
+      body {
+          height: 100vh;
+          padding: 2rem;
+          background: #263238;
+          color: #B0BEC5;
+          line-height: 1.1;
+          display: flex;
+          margin: 0;
+          box-sizing: border-box;
+
+          font-family: Monaco, Menlo, Courier, Courier New, Andale Mono, monospace;
+
+          transition: all 0.5s ease;
+      }
+
+      #app {
+          margin: 40vh auto 0;
+          text-align: center;
+      }
+
+      #app * + * {
+          margin-top: 20px;
+      }
+
+      .btn {
+          cursor: pointer;
+      }
+
+      input {
+          background: none;
+          border: none;
+          outline: 0;
+          resize: none;
+          overflow: auto;
+          color: inherit;
+          font-size: 1rem;
+          font-family: inherit;
+          line-height: inherit;
+          text-align: center;
+          width: 100%;
+      }
+
+      .title {
+          color: #fff3b7;
+      }
+
+      .v-enter-active, .v-leave-active {
+          transition: opacity 0.5s ease;
+      }
+
+      .v-enter-from, .v-leave-to {
+          opacity: 0;
+      }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="title">HyDEV Link Shortener</div>
+  <Transition @after-leave="input_hidden = true">
+    <input id="in" v-model="url" placeholder="url here..." @keydown.enter="go" v-if="!sent">
+  </Transition>
+  <Transition>
+    <div v-if="short && input_hidden">{{short}}</div>
+  </Transition>
+</div>
+<script>
+    url_re = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
+
+    Vue.createApp({
+        data() {
+            return {url: '', sent: false, short: '', input_hidden: false}
+        },
+
+        methods: {
+            async go() {
+                console.log('🐱')
+
+                // Check url starts with a protocol
+                url = this.url
+                if (!/[a-zA-Z]+:\/\/.*/.test(url))
+                    url = 'https://' + url
+
+                // Check valid url
+                if (!url_re.test(url))
+                {
+                    $('#in').effect('shake')
+                    return
+                }
+
+                this.sent = true
+
+                const resp = await fetch('/', {method: 'PUT', body: url})
+                this.short = window.location.origin + await resp.text()
+            },
+        }
+    }).mount('#app')
+</script>
+</body>
+</html>

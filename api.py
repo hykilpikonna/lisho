@@ -3,13 +3,13 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, Body
-from starlette.responses import RedirectResponse, HTMLResponse
+from starlette.responses import RedirectResponse, HTMLResponse, FileResponse, PlainTextResponse
 
 app = FastAPI()
 
 
-links = {}
-last_id = 0
+links: dict[str, str]
+last_id: int
 
 data_path = Path('data')
 links_path = data_path / 'short-links.json'
@@ -30,7 +30,7 @@ def load():
     global links
     global last_id
     links = json.loads(links_path.read_text()) if links_path.is_file() else {}
-    last_id = int(last_id_path.read_text()) if last_id_path.is_file() else 0
+    last_id = int(last_id_path.read_text()) if last_id_path.is_file() else 1000
 
 
 def encode(plain: int) -> str:
@@ -63,7 +63,7 @@ def expand(short: str):
 
 @app.get('/')
 def get():
-    return "TODO"
+    return FileResponse('index.html')
 
 
 @app.put('/')
@@ -81,7 +81,7 @@ def put(name: str | None = None, body: str = Body()):
     links[name] = body
     store()
 
-    return f'/{name}'
+    return PlainTextResponse(f'/{name}')
 
 
 if __name__ == '__main__':
