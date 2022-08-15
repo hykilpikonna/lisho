@@ -3,7 +3,6 @@ import os
 import re
 from pathlib import Path
 
-import requests
 import uvicorn
 from fastapi import FastAPI, Body
 from pysafebrowsing import SafeBrowsing
