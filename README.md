@@ -3,6 +3,9 @@ Minimalistic link shortener
 
 <img width="1203" alt="image" src="https://user-images.githubusercontent.com/22280294/184730694-a8c3da2f-abce-45b3-89c0-41769fb4794c.png">
 
+### Inspiration
+
+This project is inspired by [w4/bin](https://github.com/w4/bin), which is a similarly minimalistic pastebin. (Which I also hosted on bin.hydev.org)
 
 ### Demo
 
