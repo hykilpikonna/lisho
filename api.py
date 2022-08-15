@@ -7,6 +7,7 @@ from pathlib import Path
 import uvicorn
 from fastapi import FastAPI, Body
 from pysafebrowsing import SafeBrowsing
+from starlette.requests import Request
 from starlette.responses import RedirectResponse, HTMLResponse, FileResponse, PlainTextResponse
 
 app = FastAPI()
@@ -26,6 +27,8 @@ base = len(chars)
 # URL checks
 re_url = re.compile(r"""^https?://(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$""")
 safe_browsing = SafeBrowsing(os.environ['GOOGLE_API_KEY'])
+
+blacklist = {'docs', 'favicon'}
 
 
 def store():
@@ -61,8 +64,8 @@ def decode(s: str) -> int:
 
 @app.get('/{short}')
 def expand(short: str):
-    print(short)
-    print(links)
+    if short == 'favicon.ico':
+        return FileResponse('favicon.ico')
     if short in links:
         return RedirectResponse(links[short])
     else:
@@ -74,39 +77,41 @@ def index():
     return FileResponse('index.html')
 
 
-@app.get('/favicon.ico')
-def favicon():
-    return FileResponse('favicon.ico')
-
-
 @app.put('/')
-def put(name: str | None = None, body: str = Body()):
+def put(request: Request, name: str | None = None, body: str = Body()):
     try:
         global last_id
 
+        ip = request.headers.get('X-Real-IP') or request.client.host
+
+        print(f'New PUT request from {ip}')
+        print(f'> URL: {body.replace("https://", "").replace("http://", "")}')
+
         # Check valid html
-        assert re_url.match(body)
+        assert re_url.match(body), 'Invalid HTML'
         sb = safe_browsing.lookup_url(body)
-        print(sb)
+        print(f'> SafeBrowsing Result: {sb}')
         assert not sb['malicious'], f'Link is malicious ({",".join(sb["threats"]).lower()})'
 
         # Generate name
         while not name:
             last_id += 1
             name = encode(last_id)
-            if name in links:
+            if name in links or name in blacklist:
                 name = None
 
         # Put name
         links[name] = body
+        print(f'> Added link: {name}')
         store()
 
         return PlainTextResponse(f'/{name}')
 
     except AssertionError as e:
+        print(f'> Rejected. {e}')
         return PlainTextResponse(f'Error: {e}', status_code=400)
 
 if __name__ == '__main__':
     load()
-    uvicorn.run(app)
+    uvicorn.run(app, host='0.0.0.0', port=8000)
 
