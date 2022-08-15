@@ -5,11 +5,11 @@ Minimalistic link shortener
 
 ### Inspiration
 
-This project is inspired by [w4/bin](https://github.com/w4/bin), which is a similarly minimalistic pastebin. (Which I also hosted on bin.hydev.org)
+This project is inspired by [w4/bin](https://github.com/w4/bin), which is a similarly minimalistic pastebin. (Which I also hosted on [bin.hydev.org](https://bin.hydev.org))
 
 ### Demo
 
-Go to sh.hydev.org for demo.
+The online demo is hosted on [sh.hydev.org](https://sh.hydev.org).
 
 ### Self-Host
 
