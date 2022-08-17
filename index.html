@@ -85,7 +85,7 @@
   <Transition>
     <div v-if="short && input_hidden" :style="error ? {color: '#ff8383'} : {}">
       <div v-if="error">{{short}}</div>
-      <a :href="short" v-if="!error">{{short}}</a>
+      <a :href="'https://' + short" v-if="!error">{{short}}</a>
       <div class="rem" v-if="!error">( Copied! )</div>
     </div>
   </Transition>
